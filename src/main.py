@@ -1,8 +1,13 @@
-from window import window
+from src.graphics import Window
 
 
 def main():
-    window()
+    mw = Window('Custom Title', 1600, 900)
+    mw.render()
+
+
+
+
 
 
 if __name__ == '__main__':

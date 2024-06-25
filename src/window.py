@@ -1,4 +1,4 @@
-from particle import Particle
+from objects import Particle
 
 
 def window():
