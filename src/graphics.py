@@ -1,3 +1,5 @@
+import time
+
 import dearpygui.dearpygui as dpg
 
 
@@ -17,11 +19,13 @@ class Window:
         dpg.show_viewport()
 
         while dpg.is_dearpygui_running():
-            with dpg.viewport_drawlist():
 
-                for obj in objects_list:
+            for obj in objects_list:
+                with dpg.viewport_drawlist():
+
                     dpg.delete_item(obj.tag)
                     obj.draw()
+                obj.move()
 
             dpg.render_dearpygui_frame()
 
