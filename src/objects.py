@@ -20,13 +20,21 @@ class Particle(Object):
         self.a_y = acceleration[1]
         self.border = border
 
-    def move(self):
+    def move(self, elastic=True):
 
-        if self.y > self.border[1]-50 or self.y < 50:
+        if self.y > self.border[1] - 50:
             self.set_velocity((self.get_x_velocity(), -self.get_y_velocity()))
+            self.y = self.border[1] - 50
+        elif self.y < 50:
+            self.set_velocity((self.get_x_velocity(), -self.get_y_velocity()))
+            self.y = 50
 
-        if self.x > self.border[0]-50 or self.x < 50:
+        if self.x > self.border[0] - 50:
             self.set_velocity((-self.get_x_velocity(), self.get_y_velocity()))
+            self.x = self.border[0] - 50
+        elif self.x < 50:
+            self.set_velocity((-self.get_x_velocity(), self.get_y_velocity()))
+            self.x = 50
 
         self.v_x += self.a_x
         self.v_y += self.a_y
