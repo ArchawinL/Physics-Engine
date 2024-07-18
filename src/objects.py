@@ -4,25 +4,21 @@ import numpy as np
 
 class Object:
 
-    def __init__(self, tag, position=np.array([0, 0])):
+    def __init__(self, tag, position=np.array([0, 0]), r=50):
         self.tag = tag
         self.s = position
         self.x = position[0]
         self.y = position[1]
+        self.r = r
 
 
 class Particle(Object):
-    def __init__(self, mass, tag, position=np.array([0, 0]), velocity=np.array([0, 0]), acceleration=np.array([0, 0]),
+    def __init__(self, mass, tag, position=np.array([0, 0]), velocity=np.array([0, 0]), acceleration=np.array([0, 0]), r=50,
                  border=(1600, 900)):
-        super().__init__(tag, position)
+        super().__init__(tag, position, r)
         self.mass = mass
         self.v = velocity
         self.a = acceleration
-
-        self.v_x = velocity[0]
-        self.v_y = velocity[1]
-        self.a_x = acceleration[0]
-        self.a_y = acceleration[1]
         self.border = border
 
     def move(self, elastic=True):
@@ -44,12 +40,14 @@ class Particle(Object):
         self.v += self.a
         self.s += self.v
 
-    """
-        self.v_x += self.a_x
-        self.v_y += self.a_y
-        self.x += self.v_x
-        self.y += self.v_y
-    """
+    def detect_collision(self, *particles):
+        for p in particles:
+            disp = self.s - p.s
+
+            if np.linalg.norm(disp) < self.r*2:
+                self.s += np.divide(disp, 2)
+                p.s -= np.divide(disp, 2)
+
     def set_velocity(self, v_tr: np.array):
         self.v = v_tr
 
@@ -60,4 +58,4 @@ class Particle(Object):
         return self.v[1]
 
     def draw(self):
-        dpg.draw_circle(center=(float(self.s[0]), float(self.s[1])), radius=20, color=(255, 255, 255), tag=self.tag)
+        dpg.draw_circle(center=(float(self.s[0]), float(self.s[1])), radius=self.r, color=(255, 255, 255), tag=self.tag, fill=(255, 255, 255))

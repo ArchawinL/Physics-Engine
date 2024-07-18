@@ -25,6 +25,7 @@ class Window:
 
                     dpg.delete_item(obj.tag)
                     obj.draw()
+                    obj.detect_collision(*objects_list)
                 obj.move()
 
             dpg.render_dearpygui_frame()
