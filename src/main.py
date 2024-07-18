@@ -13,7 +13,7 @@ def main():
     """
 
     ball_list = randomise_balls(10)
-    mw = Window('Custom Title', 1600, 900)
+    mw = Window('Ball', 1600, 900)
 
     mw.render(ball_list)
 
