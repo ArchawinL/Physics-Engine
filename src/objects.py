@@ -73,7 +73,7 @@ class Particle(Object):
                     self.v -= (impulse / self.mass) * n_hat
                     p.v += (impulse / p.mass) * n_hat
 
-    def gravity(self, *particles, g_const=0.01):
+    def gravity(self, *particles, g_const=1):
 
         for p in particles:
             if p.tag != self.tag:
@@ -87,8 +87,8 @@ class Particle(Object):
                     f_grav = (g_const * self.mass * p.mass) / (distance ** 2)
                     v_grav = f_grav * disp_hat
 
-                    self.a -= v_grav / self.mass
-                    p.a += v_grav / p.mass
+                    self.a = -v_grav / self.mass
+                    p.a = v_grav / p.mass
 
     def set_velocity(self, v_tr: np.array):
         self.v = v_tr
