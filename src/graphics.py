@@ -37,7 +37,7 @@ class Window:
                 self.count_fps()
 
                 dpg.delete_item(item="fps")
-                dpg.draw_text(pos=[1340, 0], text=f"FPS: {self.fps}", size=50, tag="fps")
+                dpg.draw_text(pos=[1320, 0], text=f"FPS: {self.fps}", size=50, tag="fps")
                 dpg.draw_text(pos=[0, 0], text=f"Elasticity: {elasticity}", size=80)
 
                 objects_list.sort(key=lambda p: p.s[0])
@@ -49,6 +49,7 @@ class Window:
                     obj.draw()
 
                     obj.detect_collision(*objects_list, elasticity=elasticity)
+                    obj.gravity(*objects_list)
                     obj.move(elasticity=elasticity)
 
                 dpg.render_dearpygui_frame()

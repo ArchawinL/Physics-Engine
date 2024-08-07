@@ -46,15 +46,12 @@ class Particle(Object):
     def detect_collision(self, *particles, elasticity=1):
 
         # Optimisation 1
-        if particles.index(self) > len(particles) // 2:
+        index_p = particles.index(self)
+        if index_p > len(particles) // 2:
             particles = particles[(len(particles) // 2):]
 
         else:
             particles = particles[:(len(particles) // 2)]
-
-
-
-
 
         for p in particles:
             disp_v = self.s - p.s
@@ -75,6 +72,23 @@ class Particle(Object):
                     impulse = (1 + elasticity) * v_rel_n / (1 / self.mass + 1 / p.mass)
                     self.v -= (impulse / self.mass) * n_hat
                     p.v += (impulse / p.mass) * n_hat
+
+    def gravity(self, *particles, g_const=0.01):
+
+        for p in particles:
+            if p.tag != self.tag:
+
+                disp_v = self.s - p.s
+                distance = np.linalg.norm(disp_v)
+
+                if distance != 0:
+                    disp_hat = disp_v / distance
+
+                    f_grav = (g_const * self.mass * p.mass) / (distance ** 2)
+                    v_grav = f_grav * disp_hat
+
+                    self.a -= v_grav / self.mass
+                    p.a += v_grav / p.mass
 
     def set_velocity(self, v_tr: np.array):
         self.v = v_tr
