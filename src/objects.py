@@ -45,12 +45,16 @@ class Particle(Object):
 
     def detect_collision(self, *particles, elasticity=1):
 
-        # Optimisation
+        # Optimisation 1
         if particles.index(self) > len(particles) // 2:
             particles = particles[(len(particles) // 2):]
 
         else:
             particles = particles[:(len(particles) // 2)]
+
+
+
+
 
         for p in particles:
             disp_v = self.s - p.s
