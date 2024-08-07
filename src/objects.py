@@ -1,3 +1,5 @@
+import math
+
 import dearpygui.dearpygui as dpg
 import numpy as np
 
@@ -7,69 +9,68 @@ class Object:
     def __init__(self, tag, position=np.array([0, 0]), r=20):
         self.tag = tag
         self.s = position
-        self.x = position[0]
-        self.y = position[1]
         self.r = r
 
 
 class Particle(Object):
-    def __init__(self, mass, tag, position=np.array([0, 0]), velocity=np.array([0, 0]), acceleration=np.array([0, 0]),
+    def __init__(self, density=1, tag="Particle", position=np.array([0, 0]), velocity=np.array([0, 0]),
+                 acceleration=np.array([0, 0]),
                  r=20,
-                 border=(1600, 900)):
+                 border=(1600, 900), colour=(255, 255, 255)):
         super().__init__(tag, position, r)
-        self.mass = mass
+        self.mass = density * 4 / 3 * math.pi * r ** 3
         self.v = velocity
         self.a = acceleration
         self.border = border
+        self.colour = colour
 
-    def move(self, elastic=True):
+    def move(self, elasticity=1):
 
         if self.s[1] > self.border[1] - 50:
-            self.set_velocity(np.array([self.get_x_velocity(), -self.get_y_velocity()]))
+            self.set_velocity(np.array([self.get_x_velocity(), -self.get_y_velocity()]) * elasticity)
             self.s[1] = self.border[1] - 50
         elif self.s[1] < 50:
-            self.set_velocity(np.array([self.get_x_velocity(), -self.get_y_velocity()]))
+            self.set_velocity(np.array([self.get_x_velocity(), -self.get_y_velocity()]) * elasticity)
             self.s[1] = 50
 
         if self.s[0] > self.border[0] - 50:
-            self.set_velocity(np.array([-self.get_x_velocity(), self.get_y_velocity()]))
+            self.set_velocity(np.array([-self.get_x_velocity(), self.get_y_velocity()]) * elasticity)
             self.s[0] = self.border[0] - 50
         elif self.s[0] < 50:
-            self.set_velocity(np.array([-self.get_x_velocity(), self.get_y_velocity()]))
+            self.set_velocity(np.array([-self.get_x_velocity(), self.get_y_velocity()]) * elasticity)
             self.s[0] = 50
 
         self.v += self.a
         self.s += self.v
 
-    def detect_collision(self, *particles):
+    def detect_collision(self, *particles, elasticity=1):
+
+        # Optimisation
+        if particles.index(self) > len(particles) // 2:
+            particles = particles[(len(particles) // 2):]
+
+        else:
+            particles = particles[:(len(particles) // 2)]
+
         for p in particles:
             disp_v = self.s - p.s
             distance = np.linalg.norm(disp_v)
             overlap = self.r + p.r - distance
 
-            if np.linalg.norm(disp_v) < (self.r + p.r) and self.tag != p.tag:
-                n_hat = np.divide(disp_v, distance)
+            if distance < (self.r + p.r) and self.tag != p.tag:
+                n_hat = disp_v / distance
                 correction = (overlap / 2) * n_hat
+
                 self.s += correction
                 p.s -= correction
 
-                """Tangential Velocities calculation"""
-                t_hat = np.array([-n_hat[1], n_hat[0]], float)
+                rel_v = self.v - p.v
+                v_rel_n = np.dot(rel_v, n_hat)
 
-                v_1tp = np.multiply(t_hat, np.dot(t_hat, self.v))
-                v_2tp = np.multiply(t_hat, np.dot(t_hat, p.v))
-
-                """Normal Velocities calculation"""
-                v_1n = np.dot(n_hat, self.v)
-                v_2n = np.dot(n_hat, p.v)
-                v_1np_sca = ((v_1n * (self.mass - p.mass)) + 2 * p.mass * v_2n) / (self.mass + p.mass)
-                v_2np_sca = ((v_2n * (p.mass - self.mass)) + 2 * self.mass * v_1n) / (self.mass + p.mass)
-
-                v_1np = np.multiply(n_hat, v_1np_sca)
-                v_2np = np.multiply(n_hat, v_2np_sca)
-
-                self.set_velocity(v_1tp + v_1np)
-                p.set_velocity(v_2tp + v_2np)
+                if v_rel_n < 0:
+                    impulse = (1 + elasticity) * v_rel_n / (1 / self.mass + 1 / p.mass)
+                    self.v -= (impulse / self.mass) * n_hat
+                    p.v += (impulse / p.mass) * n_hat
 
     def set_velocity(self, v_tr: np.array):
         self.v = v_tr
@@ -81,5 +82,5 @@ class Particle(Object):
         return self.v[1]
 
     def draw(self):
-        dpg.draw_circle(center=(float(self.s[0]), float(self.s[1])), radius=self.r, color=(255, 255, 255), tag=self.tag,
-                        fill=(255, 255, 255))
+        dpg.draw_circle(center=(float(self.s[0]), float(self.s[1])), radius=self.r, color=self.colour, tag=self.tag,
+                        fill=self.colour)

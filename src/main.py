@@ -12,10 +12,10 @@ def main():
     ball4 = Particle(250, "ball4", (1000, 430), (7, 0), (0, 0.1))
     """
 
-    ball_list = randomise_balls(30)
+    ball_list = randomise_balls(100)
     mw = Window('Ball', 1600, 900)
 
-    mw.render(ball_list)
+    mw.render(ball_list, 0.9)
 
 
 if __name__ == '__main__':
