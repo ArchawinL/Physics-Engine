@@ -24,6 +24,9 @@ class Particle(Object):
         self.border = border
         self.colour = colour
 
+    def reset_acceleration(self):
+        self.a = np.zeros_like(self.a)
+
     def move(self, elasticity=1):
 
         if self.s[1] > self.border[1] - 50:
@@ -73,7 +76,7 @@ class Particle(Object):
                     self.v -= (impulse / self.mass) * n_hat
                     p.v += (impulse / p.mass) * n_hat
 
-    def gravity(self, *particles, g_const=1):
+    def gravity(self, *particles, g_const=0.001, softening=100):
 
         for p in particles:
             if p.tag != self.tag:
@@ -83,12 +86,13 @@ class Particle(Object):
 
                 if distance != 0:
                     disp_hat = disp_v / distance
+                    distance_softened = np.sqrt(distance ** 2 + softening ** 2)
 
-                    f_grav = (g_const * self.mass * p.mass) / (distance ** 2)
-                    v_grav = f_grav * disp_hat
+                    f_grav = (g_const * self.mass * p.mass) / (distance_softened ** 2)
+                    v_grav = disp_hat * f_grav
 
-                    self.a = -v_grav / self.mass
-                    p.a = v_grav / p.mass
+                    self.a -= v_grav / self.mass
+                    p.a += v_grav / p.mass
 
     def set_velocity(self, v_tr: np.array):
         self.v = v_tr

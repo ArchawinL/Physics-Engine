@@ -49,6 +49,7 @@ class Window:
                     obj.draw()
 
                     obj.detect_collision(*objects_list, elasticity=elasticity)
+                    obj.reset_acceleration()
                     obj.gravity(*objects_list)
                     obj.move(elasticity=elasticity)
 
