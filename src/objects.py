@@ -76,7 +76,7 @@ class Particle(Object):
                     self.v -= (impulse / self.mass) * n_hat
                     p.v += (impulse / p.mass) * n_hat
 
-    def gravity(self, *particles, g_const=0.001, softening=100):
+    def gravity(self, *particles, g_const=0.005, softening=100):
 
         for p in particles:
             if p.tag != self.tag:
